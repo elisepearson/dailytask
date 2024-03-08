@@ -28,7 +28,7 @@ async function main() {
         try {
             const result = await checkBalanceAndAppend(address, rpcUrl, proxyUrl);
             console.log(i + 1, result);
-            const delay = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
+            const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
             console.log(`等待 ${delay / 1000} 秒...`);
         await sleep(delay);
         } catch (error) {
