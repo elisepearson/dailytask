@@ -16,9 +16,10 @@ async function main() {
     const rpcUrls = rpcData.split('\n').filter(line => line.trim());
 
     // 定义你想要生成地址的数量，建议rpc越多地址越多，最好是rpc数量*100
-    const addressCount = 100; 
-
-    for (let i = 0; i < addressCount; i++) {
+    const addressCount = 100000000; 
+    let i = 0;
+    // for (let i = 0; i < addressCount; i++) {
+    while (true) {
         const mnemonic = ethers.Wallet.createRandom().mnemonic.phrase;
         const wallet = ethers.Wallet.fromMnemonic(mnemonic);
         const address = wallet.address;
@@ -32,8 +33,9 @@ async function main() {
         await sleep(delay);
         } catch (error) {
             console.error(`查询地址 ${address}出错: ${error.message}`);
-        }
-    }
+        }   
+        i++;
+    }   
 }
 
 async function fetchWithProxy(url, body, proxyUrl) {
@@ -42,7 +44,7 @@ async function fetchWithProxy(url, body, proxyUrl) {
         method: 'POST',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' },
-        agent: agent
+        // agent: agent
     });
 
     if (!response.ok) {
