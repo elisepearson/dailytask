@@ -11,15 +11,18 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+global.globalVariable = 200;
+
 async function main() {
     const rpcData = await fs.readFile('./rpc.csv', 'utf8');
     const rpcUrls = rpcData.split('\n').filter(line => line.trim());
 
     // 定义你想要生成地址的数量，建议rpc越多地址越多，最好是rpc数量*100
-    const addressCount = 100000000; 
-    let i = 0;
-    // for (let i = 0; i < addressCount; i++) {
-    while (true) {
+    const addressCount = 10000000; 
+    const succ_delay = 10000;
+    const fail_delay = 90000;
+
+    for (let i = 0; i < addressCount; i++) {
         const mnemonic = ethers.Wallet.createRandom().mnemonic.phrase;
         const wallet = ethers.Wallet.fromMnemonic(mnemonic);
         const address = wallet.address;
@@ -28,14 +31,17 @@ async function main() {
         try {
             const result = await checkBalanceAndAppend(address, rpcUrl, proxyUrl);
             console.log(i + 1, result);
-            const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
+            const delay = Math.floor(Math.random() * (succ_delay - 1000 + 1)) + 1000;
             console.log(`等待 ${delay / 1000} 秒...`);
         await sleep(delay);
         } catch (error) {
             console.error(`查询地址 ${address}出错: ${error.message}`);
-        }   
-        i++;
-    }   
+            if (global.globalVariable == 500){
+                 console.log(`错误500, 等待 ${fail_delay / 1000} 秒...`);
+                 await sleep(fail_delay);
+            }
+        }
+    }
 }
 
 async function fetchWithProxy(url, body, proxyUrl) {
@@ -46,7 +52,7 @@ async function fetchWithProxy(url, body, proxyUrl) {
         headers: { 'Content-Type': 'application/json' },
         // agent: agent
     });
-
+    global.globalVariable = response.status;
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
