@@ -45,7 +45,7 @@ async function main() {
 }
 
 async function fetchWithProxy(url, body, proxyUrl) {
-    const agent = new HttpsProxyAgent(proxyUrl);
+    const agent = new HttpsProxyAgent(proxyUrl, timeout=5000);
     const response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify(body),
