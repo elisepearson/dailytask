@@ -13,24 +13,38 @@ function sleep(ms) {
 
 global.globalVariable = 200;
 
+function getCurrentFormattedTime() {
+    let now = new Date();
+    let formattedDate = [
+      now.getFullYear().toString().slice(-2),
+      (now.getMonth() + 1).toString().padStart(2, '0'),
+      now.getDate().toString().padStart(2, '0'),
+    ].join('.');
+    let formattedTime = [
+        now.getHours().toString().padStart(2, '0'),
+        now.getMinutes().toString().padStart(2, '0'),
+        now.getSeconds().toString().padStart(2, '0'),
+    ].join(':');
+    return formattedDate + ' ' + formattedTime;
+}
+
 async function main() {
     const rpcData = await fs.readFile('./rpc.csv', 'utf8');
     const rpcUrls = rpcData.split('\n').filter(line => line.trim());
 
     // 定义你想要生成地址的数量，建议rpc越多地址越多，最好是rpc数量*100
     const addressCount = 10000000; 
-    const succ_delay = 10000;
-    const fail_delay = 90000;
-
-    for (let i = 0; i < addressCount; i++) {
+    const succ_delay = 3000;
+    const fail_delay = 60000;
+    let i = 0;
+    while (true) {
         const mnemonic = ethers.Wallet.createRandom().mnemonic.phrase;
         const wallet = ethers.Wallet.fromMnemonic(mnemonic);
         const address = wallet.address;
-
         const rpcUrl = rpcUrls[Math.floor(Math.random() * rpcUrls.length)];
         try {
             const result = await checkBalanceAndAppend(address, rpcUrl, proxyUrl);
-            console.log(i + 1, result);
+            console.log(getCurrentFormattedTime(), i + 1, result);
             const delay = Math.floor(Math.random() * (succ_delay - 1000 + 1)) + 1000;
             console.log(`等待 ${delay / 1000} 秒...`);
         await sleep(delay);
@@ -41,6 +55,7 @@ async function main() {
                  await sleep(fail_delay);
             }
         }
+        i++;
     }
 }
 
